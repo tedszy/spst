@@ -11,6 +11,6 @@ What we have so far:
 - other kinds of number sieves
 - number digit manipulation
 - lexical permutation of vectors
-
+- lots of unit tests
 
 

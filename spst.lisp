@@ -1,6 +1,8 @@
 (in-package #:spst)
 
-(defun rat->contfrac (rat)
+;; Continued fractions.
+
+(defun rational-to-contfrac (rat)
   (loop
      with m = (numerator rat)
      with d = (denominator rat)
@@ -31,6 +33,10 @@
 		  qs))
 	 finally (return (reverse (mapcar #'/ ps qs))))))
 
+
+
+;; Strings.
+
 (defun split-comma-string (str)
   (loop 
      with foo = (lambda (c) (char= c #\,))
@@ -40,6 +46,21 @@
 		  (position-if foo str :start a))
      when a collect (subseq str a b)
      while b))
+
+(defun join (out list-of-strings delimiter)
+  "If you use t for the output stream, it goes to standard output. 
+   And you can use \"~%\" for the delimiter to get items separated 
+   by newlines."
+  (let ((fmt (format nil "~a~a~a" "~{~a~^" delimiter "~}")))
+    (format out fmt list-of-strings)))
+
+(defun join-newline (out list-of-strings)
+  "Convenience functions. Joins a list of strings with a newline separator."
+  (join out list-of-strings "~%"))
+
+
+
+
 
 (defun make-prime-sieve (size)
   (let ((sieve (make-array size 
@@ -117,7 +138,7 @@
 	 do (setf n (floor n base))
 	 counting 1)))
 
-(defun integer->digit-list (n &key (base 10))
+(defun integer-to-digit-list (n &key (base 10))
   (if (zerop n)
       '(0)
       (loop with result = '() 
@@ -128,7 +149,7 @@
 	      (setf n q))
 	 finally (return result))))
 
-(defun integer->digit-vector (n &key (base 10))
+(defun integer-to-digit-vector (n &key (base 10))
   (if (zerop n)
       #(0)
       (let ((ndigits (number-of-digits n :base base)))
@@ -143,7 +164,7 @@
 		(decf j))
 	   finally (return result)))))
 
-(defun digit-seq->integer (dv &key (base 10))
+(defun digit-sequence-to-integer (dv &key (base 10))
   (reduce #'(lambda (acc u)
 	      (+ u (* base acc))) dv :initial-value 0))
 
