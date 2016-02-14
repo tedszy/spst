@@ -33,19 +33,22 @@
 		  qs))
 	 finally (return (reverse (mapcar #'/ ps qs))))))
 
-
-
 ;; Strings.
 
 (defun split-comma-string (str)
   (loop 
-     with foo = (lambda (c) (char= c #\,))
-     for a = (position-if-not foo str)
-     then (position-if-not foo str :start (1+ b))
-     for b = (and a 
-		  (position-if foo str :start a))
-     when a collect (subseq str a b)
-     while b))
+     for u across str
+     with result = nil
+     with v = (make-array 0 :fill-pointer 0 :element-type 'base-char)
+     if (char-equal u #\,) 
+     do 
+       (push (copy-seq v) result)
+       (setf (fill-pointer v) 0)
+     else do 
+       (vector-push-extend u v)
+     finally 
+       (push v result)
+       (return (reverse result))))
 
 (defun join (out list-of-strings delimiter)
   "If you use t for the output stream, it goes to standard output. 
@@ -55,7 +58,7 @@
     (format out fmt list-of-strings)))
 
 (defun join-newline (out list-of-strings)
-  "Convenience functions. Joins a list of strings with a newline separator."
+  "Convenience function. Joins a list of strings with a newline separator."
   (join out list-of-strings "~%"))
 
 
