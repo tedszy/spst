@@ -22,4 +22,6 @@
 	   #:factorial
 	   #:binomial 
 	   #:lexically-permutef
+	   #:lexically-permute
+	   #:nth-permutation
 	   ))

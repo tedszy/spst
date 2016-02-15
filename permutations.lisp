@@ -30,9 +30,10 @@
   (setf (subseq vec start)  
 	(reverse (subseq vec start))))
 
-;; Before you use this, make sure vec is not 
-;; at the last lexical permutation. 
 (defun lexically-permutef (vec)
+  "In-place lexical permutation of a vector. Using this on 
+   a vector that is already at the last lexical permutation
+   will throw an out of bounds error."
   (let ((vlen (length vec)))
     (multiple-value-bind (suffix pivot)
 	(loop 
@@ -51,6 +52,52 @@
 	 do (decf successor)
 	 finally (swapf vec pivot successor))
       (reversef vec suffix))))
+
+(defun lexically-permute (vec)
+  "Non-modifying lexical permutation. Returns a permuted copy
+   of the argument vector."
+  (let ((v (copy-seq vec)))
+    (lexically-permutef v)
+    v))
+
+(defun erase-frontf (vec m)
+  "Erases elements v[0] up to an including v[m-1], then resizes vector."
+  (loop 
+     with size = (length vec)
+     for k from m below size
+     for j from 0
+     do 
+       (setf (aref vec j) (aref vec k))
+     finally 
+       (setf (fill-pointer vec)
+	     (- size m))))
+
+(defun delete-nthf (sequence n)
+  (delete-if (constantly t) sequence :start n :count 1))
+
+(defun nth-permutation (n length)
+  "The nth permutation of standard vector #(1 2 ... n)"
+  (let ((p (make-array length :adjustable t :fill-pointer 0 :element-type 'fixnum))
+	(permuted-p (make-array length :adjustable t :fill-pointer 0 :element-type 'fixnum)))
+    (loop 
+       for k from 1 to length
+       do (vector-push-extend k p))
+    (loop
+       with i = (1- (length p))
+       for d = (factorial i)
+       until (= (length p) 0)
+       do 
+	 (multiple-value-bind (q r)
+	     (floor n d)
+	   (when (= r 0)
+	     (setf r d)
+	     (decf q))
+	   (vector-push-extend (aref p q) permuted-p)
+	   (delete-nth p q)
+	   (setf n r)
+	   (decf i))
+	 finally (return permuted-p))))
+	 
 
 
 (define-test binomial-factorial
@@ -76,4 +123,10 @@
     (assert-equalp goo #(0 1 2 3 4 9 8 7 6 5))
     (lexically-permutef soo)
     (assert-equalp soo #(0 1 3 0 2 3 5))
+    (assert-equalp (lexically-permute #(1 2 3 4 5))
+		   #(1 2 3 5 4))
+    (assert-equalp (nth-permutation 1 10)
+		   #(1 2 3 4 5 6 7 8 9 10))
+    (assert-equalp (nth-permutation 1000000 10)
+		   #(3 8 9 4 10 2 6 5 7 1))
     ))
