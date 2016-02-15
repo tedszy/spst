@@ -1,5 +1,12 @@
 (in-package #:spst)
 
+(defun factorial (n)
+  (loop 
+     for j from 1 to n
+     with result = 1  
+     do (setf result (* result j))
+     finally (return result)))
+
 (defun binomial (n k)
   (cond ((< n k) 0)
 	((= n k) 1)
@@ -46,7 +53,10 @@
       (reversef vec suffix))))
 
 
-(define-test binomial
+(define-test binomial-factorial
+  (assert-equal (factorial 5) 120)
+  (assert-equal (factorial 1) 1)
+  (assert-equal (factorial 0) 1)
   (assert-equal (binomial 49 6) 13983816)
   (assert-equal (binomial 0 0) 1)
   (assert-equal (binomial 1 1) 1)
