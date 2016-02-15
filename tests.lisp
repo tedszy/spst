@@ -1,17 +1,16 @@
 (in-package :spst)
 
-(define-test contfracs 
-  (assert-equalp (rational-to-contfrac 33/137) '(0 4 6 1 1 2))
-  (assert-equalp (rational-to-contfrac 137/33) '(4 6 1 1 2))
-  (assert-equalp (convergents (rational-to-contfrac 137/33))
-		 '(4 25/6 29/7 54/13 137/33))
-  (assert-equalp (convergents (rational-to-contfrac 33/137))
-		 '(0 1/4 6/25 7/29 13/54 33/137))
-)
+
 
 (define-test strings
     (assert-equal (split-comma-string "a,bb,ccc,dddd")
-		  (list "a" "bb" "ccc" "dddd")))
+		  (list "a" "bb" "ccc" "dddd"))
+    (assert-equal (join nil '("a" "bb" "cc") "--")
+		  "a--bb--cc")
+    (assert-equal (join-newline nil '("a" "bb" "cc"))
+		  (format nil "~a~%~a~%~a" "a" "bb" "cc"))
+  )
+
 
 (define-test sieves
   (let ((ps (make-prime-sieve 1000)))

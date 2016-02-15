@@ -7,6 +7,9 @@
   :serial t
   :depends-on (#:lisp-unit)
   :components ((:file "package")
-               (:file "spst")
-	       (:file "tests")))
+               (:file "continued-fractions")
+	       (:file "sieves")
+	       (:file "io")
+	       (:file "digits")
+	       (:file "permutations")))
 
