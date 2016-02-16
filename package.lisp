@@ -4,6 +4,7 @@
 	)
   (:export #:rational-to-contfrac 
 	   #:convergents
+	   #:tenner
 
 	   #:split-comma-string
 	   #:join

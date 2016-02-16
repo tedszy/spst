@@ -72,7 +72,7 @@
        (setf (fill-pointer vec)
 	     (- size m))))
 
-(defun delete-nthf (sequence n)
+(defun erase-nthf (sequence n)
   (delete-if (constantly t) sequence :start n :count 1))
 
 (defun nth-permutation (n length)
@@ -93,7 +93,7 @@
 	     (setf r d)
 	     (decf q))
 	   (vector-push-extend (aref p q) permuted-p)
-	   (delete-nth p q)
+	   (erase-nthf p q)
 	   (setf n r)
 	   (decf i))
 	 finally (return permuted-p))))
