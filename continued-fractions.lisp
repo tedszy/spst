@@ -54,6 +54,36 @@
 		 w (/ v w)))
        finally (return (reverse result)))))
 	 
+(defun periodic-irrational-contfrac (d)
+  "Returns the head and periodic part of the continued fraction 
+   for the irrational sqrt(d). If d is square, it returns sqrt(d)."
+  (let ((a0 (isqrt d)))
+    (if (= d (* a0 a0))
+	a0
+	(loop 
+	   repeat 101
+	   with a = a0
+	   with b = a0
+	   with c = (- d (* a a))
+	   with terms = (list a)
+	   with pos = (make-array 1 
+				  :adjustable t 
+				  :fill-pointer 1
+				  :initial-contents (list (list b c)))
+	   do 
+	     (setf a (floor (+ a0 b) c))
+	     (setf b (- (* a c) b))
+	     (setf c (/ (- d (* b b)) c))
+	   if (find (list b c) pos :test #'equalp) 
+	   do
+	     (push a terms)
+	     (return (reverse terms))
+	   else do
+	     (push a terms)
+	     (vector-push-extend (list b c) pos)))))
+    
+
+
 
 
 
@@ -65,4 +95,6 @@
   (assert-equalp (convergents (rational-to-contfrac 33/137))
 		 '(0 1/4 6/25 7/29 13/54 33/137))
   (assert-equalp (tenner 29 7) '(5 2 1 1 2 10 2))
+  (assert-equalp (periodic-irrational-contfrac 13)
+		 '(3 1 1 1 1 6))
   )

@@ -5,6 +5,7 @@
   (:export #:rational-to-contfrac 
 	   #:convergents
 	   #:tenner
+	   #:periodic-irrational-contfrac
 
 	   #:split-comma-string
 	   #:join
