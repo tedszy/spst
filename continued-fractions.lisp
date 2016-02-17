@@ -56,10 +56,10 @@
 	 
 (defun periodic-irrational-contfrac (d)
   "Returns the head and periodic part of the continued fraction 
-   for the irrational sqrt(d). If d is square, it returns sqrt(d)."
+   for the irrational sqrt(d). If d is square, it returns (list sqrt(d))."
   (let ((a0 (isqrt d)))
     (if (= d (* a0 a0))
-	a0
+	(list a0)
 	(loop 
 	   repeat 101
 	   with a = a0
