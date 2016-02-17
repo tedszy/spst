@@ -60,8 +60,7 @@
   (let ((a0 (isqrt d)))
     (if (= d (* a0 a0))
 	(list a0)
-	(loop 
-	   repeat 101
+	(loop 	   
 	   with a = a0
 	   with b = a0
 	   with c = (- d (* a a))
