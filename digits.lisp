@@ -37,6 +37,22 @@
   (reduce #'(lambda (acc u)
 	      (+ u (* base acc))) dv :initial-value 0))
 
+(defun palindromic-p (n)
+  (loop 
+       with v = (integer-to-digit-vector n)
+       with size = (length v)
+       for i from 0 to (floor size 2)
+       when (not (= (aref v i)
+		    (aref v (- size 1 i))))
+       do (return nil)
+       finally (return t)))
+
+(define-test palindromes
+  (assert-true (palindromic-p 121))
+  (assert-true (palindromic-p 1))
+  (assert-true (palindromic-p 12321))
+  (assert-true (palindromic-p 22))
+  (assert-true (palindromic-p 1221)))
 
 (define-test integer-digits
   (assert-equal (number-of-digits 0 :base 10) 1)

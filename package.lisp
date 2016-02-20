@@ -20,6 +20,7 @@
 	   #:integer-to-digit-list
 	   #:integer-to-digit-vector
 	   #:digit-sequence-to-integer
+	   #:palindromic-p
 
 	   #:factorial
 	   #:binomial 
