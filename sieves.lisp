@@ -1,5 +1,12 @@
 (in-package #:spst)
 
+(defun divisor-pairs (n)
+  "Quick and dirty divisor pairs."
+  (loop
+     for d from 1 to (isqrt n)
+     when (= (mod n d) 0)
+     collect (list d (/ n d))))
+
 (defun make-prime-sieve (size)
   (let ((sieve (make-array size 
 			   :element-type 'bit 

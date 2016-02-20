@@ -15,6 +15,7 @@
 	   #:make-prime-predicate
 	   #:make-distinct-prime-factor-count-sieve
 	   #:make-totient-sieve
+	   #:divisor-pairs
 
 	   #:number-of-digits
 	   #:integer-to-digit-list
