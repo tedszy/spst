@@ -22,6 +22,21 @@
 	       do (setf (bit sieve (* k i)) 0)))
     sieve))
 
+(defun make-prime-table ()
+  "Need some better dimension estimates from
+   the prime number theorem."
+  (let ((pv (make-array 0 
+			:adjustable t
+			:fill-pointer 0
+			:element-type 'fixnum))
+	(bv (make-prime-sieve 200000000)))
+    (vector-push-extend 0 pv)
+    (loop 
+       for k from 2 to 10000000
+       when (= 1 (bit bv k))
+       do (vector-push-extend k pv))
+    pv))
+
 (defun make-distinct-prime-factor-count-sieve (sieve)
   (let* ((size (length sieve))
 	 (result (make-array size 

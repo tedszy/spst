@@ -12,6 +12,7 @@
 	   #:join-newline
 
 	   #:make-prime-sieve
+	   #:make-prime-table
 	   #:make-prime-predicate
 	   #:make-distinct-prime-factor-count-sieve
 	   #:make-totient-sieve
