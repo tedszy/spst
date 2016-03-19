@@ -33,7 +33,7 @@
 	   #:pythagorean-tuple
 	   #:pythagorean-tuple-with-path
 	   #:make-pytuple
-	   #:make-pytuple-with-pah
+	   #:make-pytuple-with-path
 	   #:tuple=
 	   #:valid-p
 	   #:barning-mul
