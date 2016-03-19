@@ -57,7 +57,7 @@
   (:documentation "Get the branch (child) of the current tuple
 by matrix multiplication."))
 
-;; Multiplication by one set of Barning matricies. Another set
+;; Multiplication by one set of Barning matrices. Another set
 ;; was discovered not long ago. Many optimizations are possible. 
 ;; Dispatch on symbols 'A, 'B, 'C.
 (defmethod barning-mul ((branch symbol) (pt pythagorean-tuple))
@@ -127,10 +127,12 @@ by matrix multiplication."))
 	    (when (funcall limit ptb) (push ptb stack))
 	    (when (funcall limit ptc) (push ptc stack)))
        finally (return (values result 
-			       `(searched ,count pythagorean triples))))))
+			       count)))))
 
 ;; Try it out. (115,252,277) is a primitive pythagorean triple.
 ;; Are there triples elementwise divisible by this triple?
+;; If you pass it :with-path t, it will also calculate paths
+;; through the pythagorean tree.
 (defun try-it (&key (with-path nil))
   (depth-search-pytree 
    :search-for #'(lambda (pt) 

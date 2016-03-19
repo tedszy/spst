@@ -29,4 +29,14 @@
 	   #:lexically-permutef
 	   #:lexically-permute
 	   #:nth-permutation
+
+	   #:pythagorean-tuple
+	   #:pythagorean-tuple-with-path
+	   #:make-pytuple
+	   #:make-pytuple-with-pah
+	   #:tuple=
+	   #:valid-p
+	   #:barning-mul
+	   #:depth-search-pytree
+	   #:follow-path
 	   ))
