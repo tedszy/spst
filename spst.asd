@@ -11,5 +11,6 @@
 	       (:file "sieves")
 	       (:file "io")
 	       (:file "digits")
-	       (:file "permutations")))
+	       (:file "permutations")
+	       (:file "tuple-trees")))
 
