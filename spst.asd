@@ -5,7 +5,9 @@
   :author "Ted Szylowiec"
   :license "Specify license here"
   :serial t
-  :depends-on (#:lisp-unit)
+  :depends-on (#:lisp-unit
+	       #:alexandria
+	       #:split-sequence)
   :components ((:file "package")
                (:file "continued-fractions")
 	       (:file "sieves")
