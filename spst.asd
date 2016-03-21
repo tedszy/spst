@@ -14,5 +14,6 @@
 	       (:file "io")
 	       (:file "digits")
 	       (:file "permutations")
-	       (:file "tuple-trees")))
+	       (:file "tuple-trees")
+	       (:file "combinatorics")))
 

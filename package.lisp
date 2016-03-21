@@ -39,4 +39,7 @@
 	   #:barning-mul
 	   #:depth-search-pytree
 	   #:follow-path
+
+	   #:subsets
+	   #:n-combinations
 	   ))
