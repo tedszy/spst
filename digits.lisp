@@ -7,6 +7,16 @@
 	 do (setf n (floor n base))
 	 counting 1)))
 
+(defun sum-digits (n &key (base 10))
+  (loop 
+     with s = 0
+     until (= n 0)
+     do (multiple-value-bind (q r) 
+	    (floor n base)
+	  (incf s r) 
+	  (setf n q))
+       finally (return s)))
+
 (defun integer-to-digit-list (n &key (base 10))
   (if (zerop n)
       '(0)

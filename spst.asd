@@ -15,5 +15,6 @@
 	       (:file "digits")
 	       (:file "permutations")
 	       (:file "tuple-trees")
-	       (:file "combinatorics")))
+	       (:file "combinatorics")
+	       (:file "graphs")))
 

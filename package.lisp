@@ -19,6 +19,7 @@
 	   #:divisor-pairs
 
 	   #:number-of-digits
+	   #:sum-digits
 	   #:integer-to-digit-list
 	   #:integer-to-digit-vector
 	   #:digit-sequence-to-integer
@@ -42,4 +43,9 @@
 
 	   #:subsets
 	   #:n-combinations
+
+	   #:symbol-test
+	   #:make-graph
+	   #:bellman-ford
+	   #:optimal-path
 	   ))
