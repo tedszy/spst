@@ -11,6 +11,9 @@ What we have so far:
 - other kinds of number sieves
 - number digit manipulation
 - lexical permutation of vectors
+- Graphs and Bellman-Ford solver
+- Pythagorean tree search
+- Combinatorics functions
 - lots of unit tests
 
-
+## Tutorial coming soon.
