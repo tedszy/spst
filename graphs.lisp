@@ -30,12 +30,13 @@
 				(pushnew (first e) result) 
 				(pushnew (second e) result)
 			      finally (return result)))))
-    (make-instance 'graph
-		   :nodes (cons source (sort node-list ordering))
-		   :edges edge-list
-		   :num-nodes (length node-list)
-		   :num-edges (length edge-list)
-		   :source source)))
+    (let ((new-node-list (cons source (sort node-list ordering))))
+      (make-instance 'graph
+		     :nodes new-node-list
+		     :edges edge-list
+		     :num-nodes (length new-node-list)
+		     :num-edges (length edge-list)
+		     :source source))))
 
 (defmethod print-object ((g graph) stream)
   (with-slots (nodes edges num-nodes num-edges) g
@@ -55,7 +56,9 @@
 ;; paths. Adjust minmax argument accordingly.
 (defun bellman-ford (g &key (show-steps nil) (minmax #'<)) 
   (let ((distances (make-hash-table))
-	(predecessors (make-hash-table)))    
+	(predecessors (make-hash-table))
+	(d-table nil)   ;; distance table (as done on whiteboard)
+	(pi-table nil)) ;; precedence table (as done on whiteboard)
     ;; Initialize distance table and predecessor table.
     (setf (gethash (graph.source g) distances) 0)
     (setf (gethash (graph.source g) predecessors) nil)
@@ -65,6 +68,7 @@
 	 (setf (gethash v distances) nil))
     ; Main relaxation loop.
     (loop 
+       ;; temporary hack -- fix the stopping condition.
        for k from 1 to (graph.num-nodes g)
        do
 	 ; One iteration of Bellman Ford starts here.
@@ -78,18 +82,25 @@
 				(funcall minmax (+ u.d weight) v.d)))
 		   (setf (gethash v distances) (+ u.d weight))
 		   (setf (gethash v predecessors) u))))
-	 ;; if show-steps is true...
+	 ;; if show-steps is true, collect the steps.
 	 (when show-steps
-	   (format t 
-		   "~a~%" 
-		   (loop 
-		      for v in (graph.nodes g) 
-		      collecting (gethash v distances)))
-	   (format t 
-		   "~a~%" 
-		   (loop 
-		      for v in (graph.nodes g) 
-		      collecting (gethash v predecessors)))))
+	   (push (loop for v in (graph.nodes g)
+		    collecting (gethash v distances)) d-table)
+	   (push (loop for v in (graph.nodes g)
+		    collecting (gethash v predecessors)) pi-table)))
+
+    ;; If show-steps is true, print the so-called d and pi tables.
+    (when show-steps
+      (format t "distance table:~%")
+      (format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
+      (loop for row in (reverse d-table)
+	   do (format t "~{~5<~a~>~^ ~}~%" row))
+      (format t "~%")
+      (format t "predecessor table:~%")
+      (format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
+      (loop for row in (reverse pi-table)
+	   do (format t "~{~5<~a~>~^ ~}~%" row)))
+
     (values distances predecessors)))
   
 ;; Constructs optimal path and path cost from 
