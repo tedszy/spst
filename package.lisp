@@ -46,6 +46,10 @@
 
 	   #:symbol-test
 	   #:make-graph
+	   #:graph.nodes
+	   #:graph.edges
+	   #:graph.num-nodes
+	   #:graph.num-edges
 	   #:bellman-ford
 	   #:optimal-path
 	   ))
