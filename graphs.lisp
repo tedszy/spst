@@ -4,9 +4,6 @@
 ;; Graphs
 ;;
 
-
-
-
 ;; Graph base class.
 (defclass graph ()
   ((nodes :accessor graph.nodes :initarg :nodes :initform nil)
@@ -20,8 +17,6 @@
 
 (defclass graph-with-weighted-edges-and-nodes (graph) ())
   
-
-
 (defmethod print-object ((g graph) stream)
   (with-slots (nodes edges num-nodes num-edges) g
     (format stream 
@@ -36,10 +31,48 @@
 		 :num-nodes (length node-list)
 		 :num-edges (length edge-list)))
 
-
-
+(defun make-graph-with-weighted-edges (node-list edge-list)
+  (make-instance 'graph-with-weighted-edges
+		 :nodes node-list
+		 :edges edge-list
+		 :num-nodes (length node-list)
+		 :num-edges (length edge-list)))
 
 (defgeneric bellman-ford (g source))
+
+(defmethod bellman-ford ((g graph-with-weighted-edges) source)
+  (let ((distances (make-hash-table))
+	(predecessors (make-hash-table)))
+     ;; initialize node-weight, distance and predecessor tables.
+    (loop 
+       for id in (graph.nodes g)
+       do
+	 (setf (gethash id distances) nil)
+	 (setf (gethash id predecessors) nil))
+    ;; source node is special case.
+    (setf (gethash source distances) 0)
+    (setf (gethash source predecessors) nil)
+    ;; relaxation loop
+    (loop
+       for k from 1 to (graph.num-nodes g)
+       do (loop 
+	     for (u v w) in (graph.edges g)
+	     do (let ((u.d (gethash u distances))
+		      (v.d (gethash v distances)))
+		  (when (or (and u.d v.d (< (+ u.d w) v.d))
+			    (and u.d (null v.d)))
+		    (setf (gethash v distances) (+ u.d w))
+		    (setf (gethash v predecessors) u)))))
+    ;; Bellman results data is a table of distances (costs) 
+    ;; and predecessors. 
+    (loop 
+       for id in (graph.nodes g)
+       with bellman-table = (make-hash-table)
+       do (setf (gethash id bellman-table) 
+		(list id
+		      (gethash id distances)
+		      (gethash id predecessors)))
+       finally (return bellman-table))))
 
 (defmethod bellman-ford ((g graph-with-weighted-nodes) source)
   (let ((distances (make-hash-table))
@@ -48,8 +81,7 @@
      ;; initialize node-weight, distance and predecessor tables.
     (loop 
        for node in (graph.nodes g)
-       do
-	 (setf (gethash (first node) node-weights) (second node))
+       do (setf (gethash (first node) node-weights) (second node))
 	 (setf (gethash (first node) distances) nil)
 	 (setf (gethash (first node) predecessors) nil))
     ;; source node is special case.
@@ -58,31 +90,26 @@
     ;; relaxation loop
     (loop
        for k from 1 to (graph.num-nodes g)
-       do
-	 (loop 
-	    for (u v) in (graph.edges g)
-	    do
-	      (let ((u.d (gethash u distances))
-		    (v.d (gethash v distances))
-		    (u.w (gethash u node-weights)))
-		(when (and u.d v.d (< (+ u.d u.w) v.d))
-		  (setf (gethash v distances) (+ u.d u.w))
-		  (setf (gethash v predecessors) u))
-		(when (and u.d (null v.d))
-		  (setf (gethash v distances) (+ u.d u.w))
-		  (setf (gethash v predecessors) u)))))
+       do (loop 
+	     for (u v) in (graph.edges g)
+	     do (let ((u.d (gethash u distances))
+		      (v.d (gethash v distances))
+		      (u.w (gethash u node-weights)))
+		  (when (or (and u.d v.d (< (+ u.d u.w) v.d))
+			    (and u.d (null v.d)))
+		    (setf (gethash v distances) (+ u.d u.w))
+		    (setf (gethash v predecessors) u)))))
+    ;; Bellman results data is a table of distances (costs) 
+    ;; and predecessors. 
     (loop 
        for n in (graph.nodes g)
        as id = (first n)
        with bellman-table = (make-hash-table)
-       do
-	 (setf (gethash id bellman-table) 
-	       (list id
-		     (gethash id distances)
-		     (gethash id predecessors)
-		     (gethash id node-weights)))
+       do (setf (gethash id bellman-table) 
+		(list id
+		      (gethash id distances)
+		      (gethash id predecessors)))
        finally (return bellman-table))))
-
 
 (defun optimal-path (target bellman-table)
   (loop 
@@ -95,40 +122,28 @@
        (setf current predecessor)
      finally (return path)))
 
+(defgeneric optimal-solution (graph source target))
+
+(defmethod optimal-solution ((g graph-with-weighted-nodes) source target)
 ;; Since the nodes are weighted, and the distance is
 ;; the sum of the previous nodes, we've got to add the
-;; cost of the final target node.
-(defun solution (g source target)
+;; cost of the final (target) node.
   (let* ((bellman-table (bellman-ford g source))
-	 (tt (gethash target bellman-table)))
+	 (tt (gethash target bellman-table))
+	 (target-node-weight (second (find target (graph.nodes g) :key #'first))))
     (values (+ (second tt)
-	       (fourth tt))
+	       target-node-weight)
 	    (optimal-path target bellman-table))))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(defmethod optimal-solution ((g graph-with-weighted-edges) source target)
+  (let* ((bellman-table (bellman-ford g source))
+	 (tt (gethash target bellman-table)))
+    (values (second tt)
+	    (optimal-path target bellman-table))))
 
 ;;
 ;;
-;; Test of weighted nodes.
+;; Test of graph with weighted nodes.
 ;;
 ;;
 
@@ -139,7 +154,6 @@
 				  (630 803 746 422 111)
 				  (537 699 487 121 956)
 				  (805 732 534 37  331))))
-
 
 ;; node-list, in order. Weighted nodes.
 (defparameter node-list-1
@@ -182,171 +196,88 @@
 (defparameter g-1 
   (make-graph-with-weighted-nodes node-list-1 edge-list-1))
 
-
-
-
-
-
-
-
+;; 2297
 ;; (0 5 6 7 2 3 4 9 14 13 18 23 24)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#|
-
-;; Graphs defined by an edge lists with weights.
-;; The other slots in the graph object follow.
-;; All paths to be analyzed start at the source node.
-(defclass graph ()
-  ((nodes :accessor graph.nodes :initarg :nodes :initform nil)
-   (edges :accessor graph.edges :initarg :edges :initform nil)
-   (num-nodes :accessor graph.num-nodes :initarg :num-nodes)
-   (num-edges :accessor graph.num-edges :initarg :num-edges)
-   (source :accessor graph.source :initarg :source)))
-
-
-
-;; Nodes are weighted, edges are not.
-(defclass weighted-node-graph (graph)
-  ())
-
-
-
-
-;; If your node labels are symbols, pass this into make-graph.
-;; If plain integers, use #'<.
-(defun symbol-test (x y) (string< (symbol-name x) (symbol-name y)))
-    
-;; remove source node, sort the rest, cons back the source node.
-;; Ordering funtion determines how you'd like your nodes
-;; ordered, after the source node, which is always first.
-(defun make-graph (edge-list &key source (ordering #'<))
-  (let ((node-list (remove source 
-			   (loop 
-			      for e in edge-list
-			      with result = nil
-			      do 
-				(pushnew (first e) result) 
-				(pushnew (second e) result)
-			      finally (return result)))))
-    (let ((new-node-list (cons source (sort node-list ordering))))
-      (make-instance 'graph
-		     :nodes new-node-list
-		     :edges edge-list
-		     :num-nodes (length new-node-list)
-		     :num-edges (length edge-list)
-		     :source source))))
-
-(defmethod print-object ((g graph) stream)
-  (with-slots (nodes edges num-nodes num-edges) g
-    (format stream 
-	    "[nodes:~a edges:~a ~a]"
-	    (graph.num-nodes g)
-	    (graph.num-edges g)
-	    (graph.edges g))))
-
 ;;
 ;;
-;; Bellman-Ford solver.
+;; Test graph with weighted edges and symbols for nodes.
 ;;
 ;;
 
-;; You can look for biggest paths or smallest 
-;; paths. Adjust minmax argument accordingly.
-(defun bellman-ford (g &key (show-steps nil) (minmax #'<)) 
-  (let ((distances (make-hash-table))
-	(predecessors (make-hash-table))
-	(d-table nil)   ;; distance table (as done on whiteboard)
-	(pi-table nil)) ;; precedence table (as done on whiteboard)
-    ;; Initialize distance table and predecessor table.
-    (setf (gethash (graph.source g) distances) 0)
-    (setf (gethash (graph.source g) predecessors) nil)
-    (loop for v in (cdr (graph.nodes g))
-       do 
-	 (setf (gethash v distances) nil)
-	 (setf (gethash v distances) nil))  ;; why twice?
-    ; Main relaxation loop.
-    (loop 
-       ;; temporary hack -- fix the stopping condition.
-       for k from 1 to (graph.num-nodes g)
-       do
-	 ; One iteration of Bellman Ford starts here.
-	 (loop 
-	    for (u v weight) in (graph.edges g)
-	    do (let ((u.d (gethash u distances))
-		     (v.d (gethash v distances)))
-		 (when (or (and u.d (eql v.d nil))
-			   (and u.d 
-				v.d 
-				(funcall minmax (+ u.d weight) v.d)))
-		   (setf (gethash v distances) (+ u.d weight))
-		   (setf (gethash v predecessors) u))))
-	 ;; if show-steps is true, collect the steps.
-	 (when show-steps
-	   (push (loop for v in (graph.nodes g)
-		    collecting (gethash v distances)) d-table)
-	   (push (loop for v in (graph.nodes g)
-		    collecting (gethash v predecessors)) pi-table)))
+(defparameter node-list-2 '(s a b c d)) 
 
-    ;; If show-steps is true, print the so-called d and pi tables.
-    (when show-steps
-      (format t "distance table:~%")
-      (format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
-      (loop for row in (reverse d-table)
-	   do (format t "~{~5<~a~>~^ ~}~%" row))
-      (format t "~%")
-      (format t "predecessor table:~%")
-      (format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
-      (loop for row in (reverse pi-table)
-	   do (format t "~{~5<~a~>~^ ~}~%" row)))
-
-    (values distances predecessors)))
-  
-;; Constructs optimal path and path cost from 
-;; Bellman-Ford return values.
-(defun optimal-path (node distances predecessors)
-  (let ((cost (gethash node distances)))
-    (loop
-       with path = (list node)
-       with current = node
-       as pred = (gethash current predecessors)
-       while pred
-       do
-	 (push pred path)
-	 (setf current pred)
-	 finally (return (values cost path)))))
-
-;;
-;;
-;; Test a small graph.
-;;
-;;
-
-(defparameter edge-list-1
+(defparameter edge-list-2
   '((a c 3) (b a -5) (b d 1) (c d 2) (s a 4) (s b 6)))
 
-(defparameter g1 (make-graph edge-list-1 :source 'S :ordering #'symbol-test))
+(defparameter g-2
+  (make-graph-with-weighted-edges node-list-2 edge-list-2))
 
-(defun test-me ()
-  (multiple-value-bind (d p) (bellman-ford g1)
-    (optimal-path 'd d p)))
+;; CL-USER> (solution g-2 'S 'D)
+;; 6
+;; (S B A C D)
+
+;;
+;;
+;; Another graph with weighted edges.
+;;
+;;
+
+(defparameter data-3
+  '((131 673 234 103 18)
+    (201 96  342 965 150)
+    (630 803 746 422 111)
+    (537 699 487 121 956)
+    (805 732 534 37  331)))
+
+(defparameter node-list-3
+  (loop for n from 0 to 25 collecting n))
+
+;; Build an edge list from the raw data,
+;; interpreting the numbers as edge weights.
+(defparameter edge-list-3 
+  (let* ((nrows (length data-3))
+	 (ncols (length (car data-3)))
+	 (edges nil)
+	 ;; Rows of nodes, not including the source node 0.
+	 (nodes (loop 
+		   for k from 1 to nrows 
+		   collecting (loop 
+				 for j from 1 to ncols
+				 collecting (+ (* (1- k) ncols) j)))))
+
+   ;; Build edges going to the right.
+    (loop 
+       for rown in nodes
+       and roww in data-3
+       do 
+	 (loop 
+	    for (u v) on rown
+	    and w in (cdr roww)
+	    while v
+	    do (push (list u v w) edges)))
+
+    ;; Build edges going down.
+    (loop 
+       for (rown rown-next) on nodes
+       and roww in (cdr data-3)
+       while rown-next 
+       do
+	 (loop
+	    for u in rown
+	    and v in rown-next
+	    and w in roww
+	    do (push (list u v w) edges)))
+
+    ;; Now push back the 0 node with a wieght of data[0,0].
+    (push (list 0 1 (caar data-3)) edges)))
+
+(defparameter g-3
+  (make-graph-with-weighted-edges node-list-3 edge-list-3))
+
+;; CL-USER> (solution g-3 0 25)
+;; 2427
+;; (0 1 6 7 8 13 14 19 24 25)
 
 
-|#
+

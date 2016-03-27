@@ -44,13 +44,13 @@
 	   #:subsets
 	   #:n-combinations
 
-	   #:symbol-test
-	   #:make-graph
-	   #:make-weighted-node-graph
+	   #:graph
 	   #:graph.nodes
 	   #:graph.edges
 	   #:graph.num-nodes
 	   #:graph.num-edges
+	   #:graph-with-weighted-nodes
+	   #:graph-with-weighted-edges
 	   #:bellman-ford
-	   #:optimal-path
+	   #:optimal-solution
 	   ))
