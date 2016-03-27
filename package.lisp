@@ -46,6 +46,7 @@
 
 	   #:symbol-test
 	   #:make-graph
+	   #:make-weighted-node-graph
 	   #:graph.nodes
 	   #:graph.edges
 	   #:graph.num-nodes
