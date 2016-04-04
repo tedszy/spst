@@ -1,4 +1,4 @@
-;;(in-package :spst)
+(in-package :spst)
 
 ;;
 ;; Graphs
@@ -38,11 +38,13 @@
 		 :num-nodes (length node-list)
 		 :num-edges (length edge-list)))
 
-(defgeneric bellman-ford (g source))
+(defgeneric bellman-ford (g source &key show-steps))
 
-(defmethod bellman-ford ((g graph-with-weighted-edges) source)
+(defmethod bellman-ford ((g graph-with-weighted-edges) source &key (show-steps nil))
   (let ((distances (make-hash-table))
-	(predecessors (make-hash-table)))
+	(predecessors (make-hash-table))
+	(d-table nil)
+	(pi-table nil))
      ;; initialize node-weight, distance and predecessor tables.
     (loop 
        for id in (graph.nodes g)
@@ -57,24 +59,74 @@
        for k from 1 to (graph.num-nodes g)
        do (loop 
 	     for (u v w) in (graph.edges g)
-	     do (let ((u.d (gethash u distances))
-		      (v.d (gethash v distances)))
-		  (when (or (and u.d v.d (< (+ u.d w) v.d))
-			    (and u.d (null v.d)))
-		    (setf (gethash v distances) (+ u.d w))
-		    (setf (gethash v predecessors) u)))))
+	     do 
+	       (let ((u.d (gethash u distances))
+		     (v.d (gethash v distances)))
+		 (when (or (and u.d v.d (< (+ u.d w) v.d))
+			   (and u.d (null v.d)))
+		   (setf (gethash v distances) (+ u.d w))
+		   (setf (gethash v predecessors) u))))
+	   	       
+	 ;; if show-steps, collect information for printed tables.
+	 (when show-steps
+	   (push (loop for v in (graph.nodes g)
+		    collecting (gethash v distances)) d-table)
+	   (push (loop for v in (graph.nodes g)
+		    collecting (gethash v predecessors)) pi-table)))
+	     
     ;; Bellman results data is a table of distances (costs) 
     ;; and predecessors. 
-    (loop 
-       for id in (graph.nodes g)
-       with bellman-table = (make-hash-table)
-       do (setf (gethash id bellman-table) 
-		(list id
-		      (gethash id distances)
-		      (gethash id predecessors)))
-       finally (return bellman-table))))
+    (let ((bt (loop 
+		 for id in (graph.nodes g)
+		 with bellman-table = (make-hash-table)
+		 do (setf (gethash id bellman-table) 
+			  (list id
+				(gethash id distances)
+				(gethash id predecessors)))
+			    finally (return bellman-table))))
 
-(defmethod bellman-ford ((g graph-with-weighted-nodes) source)
+      (when show-steps
+	(format t "distance table:~%")
+	(format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
+	(loop 
+	   for row in (reverse d-table)
+	   do 
+	     (format t "~{~5<~a~>~^ ~}~%" row))   
+	(format t "~%")
+	(format t "predecessor table:~%")
+	(format t "~{~5<~a~>~^ ~}~%" (graph.nodes g))
+	(loop 
+	   for row in (reverse pi-table)
+	   do 
+	     (format t "~{~5<~a~>~^ ~}~%" row)))	  
+	bt)))
+
+(defparameter edges-cmu
+           '((0 8 1) (1 3 12) (1 6 2)
+            (2 1 22) (2 8 8) (2 15 6)
+            (3 2 4) (4 1 3) (6 3 18)
+            (8 3 7) (9 0 11) (9 12 5)
+            (12 9 14) (12 2 16) (15 12 3)
+            (15 1 9) (15 4 5)))
+
+(defparameter nodes-cmu '(0 1 2 3 4 6 8 9 12 15))
+
+(defparameter g-cmu
+  (make-graph-with-weighted-edges nodes-cmu edges-cmu))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(defmethod bellman-ford ((g graph-with-weighted-nodes) source &key (show-steps nil))
   (let ((distances (make-hash-table))
 	(predecessors (make-hash-table))
 	(node-weights (make-hash-table)))

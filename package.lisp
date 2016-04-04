@@ -51,6 +51,8 @@
 	   #:graph.num-edges
 	   #:graph-with-weighted-nodes
 	   #:graph-with-weighted-edges
+	   #:make-graph-with-weighted-edges
+	   #:make-graph-with-weighted-nodes
 	   #:bellman-ford
 	   #:optimal-solution
 	   ))
